@@ -7,9 +7,9 @@ import Button from 'react-bootstrap/Button';
 import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
-import Swal from 'sweetalert2';
-import { Toast } from '../styling/swal';
 import { updateGoods, deleteGoods } from '../store/actions';
+import { swalFire, swalConfirm, toastSuccess } from '../styling/swal';
+import inputValidation from '../helper/inputValidation';
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -33,35 +33,34 @@ function Goods(props) {
   const good = props.good;
   const index = props.index;
   const dispatch = useDispatch();
-  const existingGoods = useSelector(state => state.goods.goods);
-  const handleShow = () => setShow(true);
   const [show, setShow] = useState(false);
   const [thisGoods, setThisGoods] = useState(good.name);
   const [quantity, setQuantity] = useState(good.quantity);
   const [price, setPrice] = useState(good.originalPrice);
   const [type, setType] = useState(good.type);
   const [imported, setImported] = useState(good.imported);
+  const existingGoods = useSelector(state => state.goods.goods);
+  
+  const handleShow = () => setShow(true);
+
+  const handleClose = () => {
+    setThisGoods(good.name);
+    setQuantity(good.quantity);
+    setPrice(good.originalPrice);
+    setType(good.type);
+    setImported(good.imported);
+    setShow(false)
+  };
 
   function handleEdit(e) {
     e.preventDefault();
-    if (!thisGoods || !quantity || !price || !type) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'All inputs must be filled!'
-      })
-    } else if (quantity < 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Quantity can\'t be negative value!'
-      })
-    } else if (price < 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Price can\'t be negative value!'
-      })
+    const validate = inputValidation(thisGoods, quantity, price, type);
+    if (validate === 'fill_input') {
+      swalFire('All inputs need to be filled!');
+    } else if (validate === 'negative_quantity') {
+      swalFire('Quantity has to be positive value!');
+    } else if (validate === 'negative_price') {
+      swalFire('Price has to be positive value!'); 
     } else {
       const duplicateGoods = [...existingGoods];
       duplicateGoods.forEach(goods => {
@@ -84,47 +83,24 @@ function Goods(props) {
           goods.tax = tax;
         }
       })
-      dispatch(updateGoods(duplicateGoods))
-      Toast.fire({
-        icon: 'success',
-        title: 'Goods edited successfully!'
-      })
+      dispatch(updateGoods(duplicateGoods));
+      toastSuccess('Goods edited successfully!');
       handleClose();
     }
   }
 
-  function handleDelete(e) {
+  async function handleDelete(e) {
     e.preventDefault();
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const filteredGoods = existingGoods.filter(goods => {
-          return +goods.id !== good.id;
-        })
-        dispatch(deleteGoods(filteredGoods));
-        Toast.fire({
-          icon: 'success',
-          title: 'Goods deleted successfully!'
-        })
-      }
-    })
+    const confirming = await swalConfirm();
+    if (confirming.isConfirmed) {
+      const filteredGoods = existingGoods.filter(goods => {
+        return +goods.id !== good.id;
+      })
+      dispatch(deleteGoods(filteredGoods));
+      toastSuccess('Goods deleted successfully!');
+    }
   }
 
-  const handleClose = () => {
-    setThisGoods(good.name);
-    setQuantity(good.quantity);
-    setPrice(good.originalPrice);
-    setType(good.type);
-    setImported(good.imported);
-    setShow(false)
-  };
   return (
     <StyledTableRow key={good.name}>
       <StyledTableCell component="th" scope="row" align="center">

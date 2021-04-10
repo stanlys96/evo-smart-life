@@ -8,14 +8,13 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { default as MuiButton } from '@material-ui/core/Button';
-import Swal from 'sweetalert2';
-import { Toast } from '../styling/swal';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Goods from '../components/Goods';
-import { priceFormat } from '../helper/priceFormatter';
 import { getGoods, addGoods } from '../store/actions';
+import { swalFire, swalCalculate, toastSuccess } from '../styling/swal';
+import inputValidation from '../helper/inputValidation';
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -26,14 +25,6 @@ const StyledTableCell = withStyles((theme) => ({
     fontSize: 16,
   },
 }))(TableCell);
-
-const StyledTableRow = withStyles((theme) => ({
-  root: {
-    '&:nth-of-type(odd)': {
-      backgroundColor: theme.palette.action.hover,
-    },
-  },
-}))(TableRow);
 
 const useStyles = makeStyles({
   table: {
@@ -67,27 +58,29 @@ function Home() {
   const [type, setType] = useState('');
   const [imported, setImported] = useState(false);
   const goods = useSelector(state => state.goods.goods);
-  console.log(goods, "<<< goods");
+
+  const classes = useStyles();
+
+  const handleShow = () => setShow(true);
+
+  const handleClose = () => {
+    setThisGoods('');
+    setQuantity('');
+    setPrice('');
+    setType('');
+    setImported(false);
+    setShow(false)
+  };
+
   function handleSubmit(e) {
     e.preventDefault();
-    if (!thisGoods || !quantity || !price || !type) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'All inputs must be filled!'
-      })
-    } else if (quantity < 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Quantity can\'t be negative value!'
-      })
-    } else if (price < 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Price can\'t be negative value!'
-      })
+    const validate = inputValidation(thisGoods, quantity, price, type);
+    if (validate === 'fill_input') {
+      swalFire('All inputs need to be filled!');
+    } else if (validate === 'negative_quantity') {
+      swalFire('Quantity has to be positive value!');
+    } else if (validate === 'negative_price') {
+      swalFire('Price has to be positive value!'); 
     } else {
       let tax = 0;
       if (type === 'Other') {
@@ -114,22 +107,10 @@ function Home() {
       setPrice('');
       setType('');
       setImported(false);
-      Toast.fire({
-        icon: 'success',
-        title: 'Goods added successfully!'
-      })
+      toastSuccess('Goods added successfully');
       handleClose();
     }
   }
-
-  const handleClose = () => {
-    setThisGoods('');
-    setQuantity('');
-    setPrice('');
-    setType('');
-    setImported(false);
-    setShow(false)
-  };
 
   const handleCalculate = (e) => {
     e.preventDefault();
@@ -139,18 +120,13 @@ function Home() {
       totalTax += +goods.tax;
       totalPrice += +goods.price;
     })
-    Swal.fire({
-      icon: 'info',
-      title: 'Wow!',
-      text: `Total sales taxes: ${priceFormat(totalTax)} and total price: ${priceFormat(totalPrice)}!`
-    })
+    swalCalculate(totalTax, totalPrice);
   }
 
-  const handleShow = () => setShow(true);
-  const classes = useStyles();
   useEffect(() => {
     dispatch(getGoods(goods))
-  }, [dispatch])
+  }, [dispatch]);
+
   return (
     <div className={classes.page}>
       <h1 style={{ margin: '0 auto', paddingTop: '20px', textAlign: 'center' }}>Sales Goods Calculator</h1>
