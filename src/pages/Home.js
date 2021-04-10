@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { useReactiveVar } from '@apollo/client';
-import { goodsVar } from '../config/vars';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -16,6 +15,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Goods from '../components/Goods';
 import { priceFormat } from '../helper/priceFormatter';
+import { getGoods, addGoods } from '../store/actions';
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -59,16 +59,17 @@ const useStyles = makeStyles({
 });
 
 function Home() {
+  const dispatch = useDispatch();
   const [show, setShow] = useState(false);
   const [thisGoods, setThisGoods] = useState('');
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
   const [type, setType] = useState('');
   const [imported, setImported] = useState(false);
-
+  const goods = useSelector(state => state.goods.goods);
+  console.log(goods, "<<< goods");
   function handleSubmit(e) {
     e.preventDefault();
-    const existingGoods = goodsVar();
     if (!thisGoods || !quantity || !price || !type) {
       Swal.fire({
         icon: 'error',
@@ -107,7 +108,7 @@ function Home() {
         imported,
         tax
       }
-      goodsVar([...existingGoods, newData]);
+      dispatch(addGoods(newData));
       setThisGoods('');
       setQuantity('');
       setPrice('');
@@ -134,7 +135,7 @@ function Home() {
     e.preventDefault();
     let totalTax = 0;
     let totalPrice = 0;
-    goodsVar().forEach(goods => {
+    goods.forEach(goods => {
       totalTax += +goods.tax;
       totalPrice += +goods.price;
     })
@@ -147,7 +148,9 @@ function Home() {
 
   const handleShow = () => setShow(true);
   const classes = useStyles();
-  const goods = useReactiveVar(goodsVar);
+  useEffect(() => {
+    dispatch(getGoods(goods))
+  }, [dispatch])
   return (
     <div className={classes.page}>
       <h1 style={{ margin: '0 auto', paddingTop: '20px', textAlign: 'center' }}>Sales Goods Calculator</h1>
@@ -166,6 +169,7 @@ function Home() {
               <StyledTableCell align="center">#</StyledTableCell>
               <StyledTableCell align="center">Goods</StyledTableCell>
               <StyledTableCell align="center">Quantity</StyledTableCell>
+              <StyledTableCell align="center">Price</StyledTableCell>
               <StyledTableCell align="center">Type</StyledTableCell>
               <StyledTableCell align="center">Imported</StyledTableCell>
               <StyledTableCell align="center">Actions</StyledTableCell>

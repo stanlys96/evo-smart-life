@@ -1,15 +1,15 @@
 import { withStyles } from '@material-ui/core/styles';
+import { useSelector, useDispatch } from 'react-redux';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import { priceFormat } from '../helper/priceFormatter';
 import Button from 'react-bootstrap/Button';
-import { useReactiveVar } from '@apollo/client';
-import { goodsVar } from '../config/vars';
 import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Swal from 'sweetalert2';
 import { Toast } from '../styling/swal';
+import { updateGoods, deleteGoods } from '../store/actions';
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -30,11 +30,12 @@ const StyledTableRow = withStyles((theme) => ({
 }))(TableRow);
 
 function Goods(props) {
-  const handleShow = () => setShow(true);
-  const [show, setShow] = useState(false);
-  const existingGoods = useReactiveVar(goodsVar);
   const good = props.good;
   const index = props.index;
+  const dispatch = useDispatch();
+  const existingGoods = useSelector(state => state.goods.goods);
+  const handleShow = () => setShow(true);
+  const [show, setShow] = useState(false);
   const [thisGoods, setThisGoods] = useState(good.name);
   const [quantity, setQuantity] = useState(good.quantity);
   const [price, setPrice] = useState(good.originalPrice);
@@ -81,12 +82,12 @@ function Goods(props) {
           goods.type = type;
           goods.imported = imported;
           goods.tax = tax;
-          goodsVar([...duplicateGoods]);
-          Toast.fire({
-            icon: 'success',
-            title: 'Goods edited successfully!'
-          })
         }
+      })
+      dispatch(updateGoods(duplicateGoods))
+      Toast.fire({
+        icon: 'success',
+        title: 'Goods edited successfully!'
       })
       handleClose();
     }
@@ -107,7 +108,7 @@ function Goods(props) {
         const filteredGoods = existingGoods.filter(goods => {
           return +goods.id !== good.id;
         })
-        goodsVar([...filteredGoods])
+        dispatch(deleteGoods(filteredGoods));
         Toast.fire({
           icon: 'success',
           title: 'Goods deleted successfully!'
@@ -131,6 +132,7 @@ function Goods(props) {
       </StyledTableCell>
       <StyledTableCell align="center">{good.name}</StyledTableCell>
       <StyledTableCell align="center">{good.quantity}</StyledTableCell>
+      <StyledTableCell align="center">{priceFormat(good.originalPrice)}</StyledTableCell>
       <StyledTableCell align="center">{good.type}</StyledTableCell>
       <StyledTableCell align="center">{good.imported === true ? 'Yes' : 'No'}</StyledTableCell>
       <StyledTableCell align="center">
