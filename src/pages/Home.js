@@ -157,18 +157,6 @@ function Home() {
             {goods.map((good, index) => (
               <Goods good={good} index={index} key={good.name} />
             ))}
-              {/* <StyledTableRow>
-                <StyledTableCell component="th" scope="row" align="center">
-                &nbsp;
-                </StyledTableCell>
-                <StyledTableCell align="center">&nbsp;</StyledTableCell>
-                <StyledTableCell align="center">&nbsp;</StyledTableCell>
-                <StyledTableCell align="center">&nbsp;</StyledTableCell>
-                <StyledTableCell align="center">&nbsp;</StyledTableCell> 
-                <StyledTableCell align="center"><h5>Total:</h5></StyledTableCell>
-                <StyledTableCell align="center"><h5>This Much</h5></StyledTableCell>
-                <StyledTableCell align="center"><h5>This Much</h5></StyledTableCell>
-              </StyledTableRow> */}
           </TableBody>
         </Table>
       </TableContainer>
