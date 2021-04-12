@@ -23,7 +23,7 @@ export const swalFire = (message) => {
 export const swalCalculate = (tax, price) => {
   return Swal.fire({
     icon: 'info',
-    title: 'Wow!',
+    title: 'Here\'s your bill!',
     text: `Total sales taxes: ${priceFormat(tax)} and total price: ${priceFormat(price)}!`
   })
 }
