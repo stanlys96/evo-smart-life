@@ -110,7 +110,7 @@ function Goods(props) {
       <StyledTableCell align="center">{good.quantity}</StyledTableCell>
       <StyledTableCell align="center">{priceFormat(good.originalPrice)}</StyledTableCell>
       <StyledTableCell align="center">{good.type}</StyledTableCell>
-      <StyledTableCell align="center">{good.imported === true ? 'Yes' : 'No'}</StyledTableCell>
+      <StyledTableCell align="center">{good.imported === true ? <i class="fas fa-check-circle"></i> : <i class="fas fa-times-circle"></i>}</StyledTableCell>
       <StyledTableCell align="center">
         <Button variant="primary" onClick={handleShow}><i className="fas fa-edit"></i></Button>
         <Button variant="danger" onClick={handleDelete} className="ml-4"><i className="fas fa-trash-alt"></i></Button>

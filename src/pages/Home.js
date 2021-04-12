@@ -35,7 +35,7 @@ const useStyles = makeStyles({
   },
   buttonAdd: {
     display: 'inline-block',
-    marginLeft: '1150px',
+    marginLeft: '1130px',
     marginTop: '10px'
   },
   buttonCalculate: {
@@ -134,11 +134,11 @@ function Home() {
         goods.length === 0 ? (
           <div>
             <h4 style={{ textAlign: 'center', paddingTop: '20px' }}>No goods added yet. Add some goods!</h4>
-            <MuiButton variant="contained" className={classes.buttonCalculate} color="primary" onClick={handleShow}>Add Goods</MuiButton>
+            <MuiButton variant="contained" className={classes.buttonCalculate} color="primary" onClick={handleShow}><i class="far fa-plus-square"></i> &nbsp;Add Goods</MuiButton>
           </div>
         ): 
       <TableContainer>
-        <MuiButton variant="contained" className={classes.buttonAdd} color="primary" onClick={handleShow}>Add Goods</MuiButton>
+        <MuiButton variant="contained" className={classes.buttonAdd} color="primary" onClick={handleShow}><i class="far fa-plus-square"></i> &nbsp;Add Goods</MuiButton>
         <Table className={classes.table} size="medium" aria-label="customized table">
           <TableHead>
             <TableRow>
@@ -161,7 +161,7 @@ function Home() {
         </Table>
       </TableContainer>
       }
-      { goods.length === 0 ? <> </> : <MuiButton variant="contained" onClick={handleCalculate} className={classes.buttonCalculate}>Calculate All</MuiButton> }
+      { goods.length === 0 ? <> </> : <MuiButton variant="contained" onClick={handleCalculate} className={classes.buttonCalculate}><i class="fas fa-calculator"></i> &nbsp;Calculate All</MuiButton> }
       <Modal
         show={show}
         onHide={handleClose}
